@@ -1,0 +1,214 @@
+<div [formGroup]="facsRequest">
+  <div class="container">
+    <div>
+      <h3>Facilities & Maintenance Services Work Order Request</h3>
+      If this is an Emergency, please call Facilities immediately at (555) 123-4567
+    </div>
+    <br />
+    <mat-form-field>
+      <input id="requestorName" formControlName="requestorName" matInput placeholder="Name">
+      <mat-icon matSuffix>person</mat-icon>
+      <mat-error *ngIf="facsRequest.controls['requestorName'].invalid">Please enter a name</mat-error>
+    </mat-form-field>
+    <mat-form-field class="half-width">
+      <input type="text" matInput formControlName="requestorPhone" placeholder="Phone #" [textMask]="{mask: mask}">
+      <mat-icon matSuffix>phone</mat-icon>
+      <mat-error *ngIf="facsRequest.controls['requestorPhone'].invalid">Please enter a valid phone #</mat-error>
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput placeholder="Email" formControlName="requestorEmail">
+      <mat-icon matSuffix>email</mat-icon>
+      <mat-error *ngIf="facsRequest.controls['requestorEmail'].invalid">Please enter a valid email address</mat-error>
+    </mat-form-field>
+    <mat-checkbox formControlName="notify">Notify Me</mat-checkbox>
+    <br />
+    <mat-form-field>
+      <mat-select formControlName="department" placeholder="Department">
+        <mat-option *ngFor="let dept of depts" value="{{dept.DeptName}}">
+          {{dept.DeptName}}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="facsRequest.controls['department'].invalid">Department is required</mat-error>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-select formControlName="building" placeholder="Building Name" (change)="onBldgSelect($event)">
+        <mat-option *ngFor="let bldg of bldgs" value="{{bldg.BldgCode}};{{bldg.BldgName}}">
+          {{bldg.BldgName}}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="facsRequest.controls['building'].invalid">Building Name is required</mat-error>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-select formControlName="floor" placeholder="Floor" (change)="onFloorSelect($event)">
+        <mat-option *ngFor="let floor of floors" value="{{floor.FloorCode}}">
+          {{floor.FloorCode}}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="facsRequest.controls['floor'].invalid"> Floor is required</mat-error>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-select formControlName="room" placeholder="Room" (change)="onRoomSelect($event)">
+        <mat-option *ngFor="let room of rooms" value="{{room.RoomNumber}}">
+          {{room.RoomNumber}} - {{room.RoomDescription}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+      <input id="accountNum" formControlName="accountNum" matInput placeholder="Account #">
+    </mat-form-field>
+    <span>Is this related to an event? (Required)</span>
+    <mat-radio-group formControlName="isEvent" class="radio-group" (change)="clearEventDetails($event)">
+      <mat-radio-button class="radio-button" value="Yes">Yes</mat-radio-button>
+      <mat-radio-button class="radio-button" value="No">No</mat-radio-button>
+    </mat-radio-group>
+    <div *ngIf="facsRequest.controls['isEvent'].value == 'Yes'" class="container">
+      <br />
+      <mat-card>
+        <mat-card-content>
+          <div class="heading">
+            IMPORTANT NOTICE
+          </div>
+          <div>
+            In order to ensure a successful event and facilitate our schedule, please submit your request at least 3 business days prior to your event.
+            Requests submitted less than 3 business days in advance will be considered on a resource availability basis and will incur additional fees.
+            &nbsp;<a href='' target="_blank">Click here</a> for our Events Policy.
+          </div>
+        </mat-card-content>
+      </mat-card>
+      <br />
+      <mat-form-field>
+        <input id="eventName" formControlName="eventName" matInput placeholder="Event Name">
+        <mat-error *ngIf="facsRequest.controls['eventName'].invalid">Please enter an event name</mat-error>
+      </mat-form-field>
+      <table>
+        <tr>
+          <td>
+            <mat-form-field>
+              <input matInput type="datetime" [owlDateTimeTrigger]="dtStart" [owlDateTime]="dtStart" [min]="minStart" formControlName="eventStart" placeholder="Event Start">
+              <mat-icon matSuffix>calendar_today</mat-icon>
+              <owl-date-time [hour12Timer]="true" #dtStart></owl-date-time>
+              <mat-error *ngIf="facsRequest.controls['eventStart'].invalid">Event start date/time required</mat-error>
+            </mat-form-field>
+          </td>
+          <td>
+            <mat-form-field>
+              <input matInput type="datetime" [owlDateTimeTrigger]="dtEnd" [owlDateTime]="dtEnd" [min]="facsRequest.controls['eventStart'].value" formControlName="eventEnd" placeholder="Event End">
+              <mat-icon matSuffix>calendar_today</mat-icon>
+              <owl-date-time [hour12Timer]="true" #dtEnd></owl-date-time>
+              <mat-error *ngIf="facsRequest.controls['eventEnd'].invalid">Event end date/time required</mat-error>
+            </mat-form-field>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <span>Tables: </span>
+            <mat-form-field class="qtr-width">
+              <input matInput type="number" formControlName="tables" placeholder="Qty" min="0">
+              <mat-error *ngIf="facsRequest.controls['tables'].invalid">Max is 10</mat-error>
+            </mat-form-field>
+          </td>
+          <td>
+            <div *ngIf="facsRequest.controls['tables'].value > 0">
+              <mat-form-field class="full-width">
+                <input matInput formControlName="tableSize" placeholder="Table Size(s):">
+              </mat-form-field>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <span>Chairs: </span>
+            <mat-form-field class="qtr-width">
+              <input matInput type="number" formControlName="chairs" placeholder="Qty" min="0">
+              <mat-error *ngIf="facsRequest.controls['chairs'].invalid">Max is 50</mat-error>
+            </mat-form-field>
+          </td>
+          <td>
+            <span>Special A/C Schedule: </span>
+            <mat-form-field class="qtr-width">
+              <mat-select formControlName="spclSchedAC">
+                <mat-option value="Yes">Yes</mat-option>
+                <mat-option value="No">No</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <span>Trash Can(s): </span>
+            <mat-form-field class="qtr-width">
+              <input matInput type="number" formControlName="trashBins" placeholder="Qty" min="0" />
+            </mat-form-field>
+          </td>
+          <td>
+            <span>Sprinklers Off: </span>
+            <mat-form-field class="qtr-width">
+              <mat-select formControlName="sprinklersOff">
+                <mat-option value="Yes">Yes</mat-option>
+                <mat-option value="No">No</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <span>Recycle Can(s): </span>
+            <mat-form-field class="qtr-width">
+              <input matInput type="number" formControlName="recycleBins" placeholder="Qty" min="0" />
+            </mat-form-field>
+          </td>
+          <td>
+            <span>Bldg Attendant (Billable): </span>
+            <mat-form-field class="qtr-width">
+              <mat-select formControlName="bldgAttendant">
+                <mat-option value="Yes">Yes</mat-option>
+                <mat-option value="No">No</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <span>Remove Bollards: </span>
+            <mat-form-field class="qtr-width">
+              <mat-select formControlName="removeBollards">
+                <mat-option value="Yes">Yes</mat-option>
+                <mat-option value="No">No</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </td>
+          <td>
+            <div *ngIf="facsRequest.controls['removeBollards'].value == 'Yes'">
+              <mat-form-field class="full-width">
+                <input matInput formControlName="bollardLocs" placeholder="List Location(s):">
+              </mat-form-field>
+            </div>
+          </td>
+        </tr>
+      </table>
+      <mat-form-field>
+        <input matInput type="text" formControlName="unlockDoors" placeholder="Unlock Doors (List room #'s)" />
+      </mat-form-field>
+    </div>
+    <br />
+    <mat-form-field>
+      <textarea matInput formControlName="requestText" placeholder="Request"></textarea>
+      <mat-error *ngIf="facsRequest.controls['requestText'].invalid">Please enter a description of your request</mat-error>
+    </mat-form-field>
+  </div>
+</div>
+<div>
+  <button type="button" mat-raised-button color="primary" (click)="postRequest(facsRequest.value)" [disabled]="!facsRequest.valid || showProg">Submit</button>
+</div>
+<br />
+<div class="container">
+  <mat-progress-bar *ngIf="showProg" mode="indeterminate"></mat-progress-bar>
+  <div *ngIf="requestID !== undefined" class="success">
+    Your request was submitted succesfully.  Your Request # is {{requestID}}
+  </div>
+  <div *ngIf="error !== undefined" class="error">
+    {{error}}
+  </div>
+</div>
+
+
